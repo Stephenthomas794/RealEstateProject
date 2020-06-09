@@ -41,7 +41,7 @@ def CheckZipCodes():
                 total = total + len(newList)
                 newlist = ''
         print(total)
-        time.sleep(randint(0,10))
+        time.sleep(randint(0,150)/100)
     return total
 
 # Clean the csv File and return zip codes as strings
