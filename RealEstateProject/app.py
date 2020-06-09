@@ -32,14 +32,16 @@ def CheckZipCodes():
     zipCodes = cleanAndReturnZip()
     newList = ''
     for item in zipCodes:
-        url = "https://mls.foreclosure.com/listing/search.html?g=" + item + "&lc=foreclosure"
+        url = "https://mls.foreclosure.com/listing/search?lc=foreclosure&loc=" + item
         requestUrl = requests.get(url)
         requestText = requestUrl.text
-        for lines in requestText.split('/n'):
-            if lines[0:11] == 'let markersData=':
+        requestTextSplit = requestText.split('\n')
+        for lines in requestTextSplit:
+            if lines[0:15].lower() == 'var markersdata':
                 newList = lines.split("delimeter")
                 total = total + len(newList)
                 newlist = ''
+            newlist = ''
         print(total)
         time.sleep(randint(0,150)/100)
     return total
