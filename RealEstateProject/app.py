@@ -16,7 +16,6 @@ import pandas as pd
 app = Flask(__name__)
 
 # Variables
-zipCodes = []
 
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
@@ -24,13 +23,14 @@ wsgi_app = app.wsgi_app
 # Routing to Main Page
 @app.route('/')
 def hello():
-    cleanAndReturnZip(zipCodes)
-    value = CheckZipCodes(zipCodes)
-    print (value)
-    return "hi"
+    value = str(CheckZipCodes())
+    return value
 
-def CheckZipCodes(zipCodes):
+def CheckZipCodes():
     total = 0
+    zipCodes = list()
+    zipCodes = cleanAndReturnZip()
+    newList = ''
     for item in zipCodes:
         url = "https://mls.foreclosure.com/listing/search.html?g=" + item + "&lc=foreclosure"
         requestUrl = requests.get(url)
@@ -38,13 +38,15 @@ def CheckZipCodes(zipCodes):
         for lines in requestText.split('/n'):
             if lines[0:11] == 'let markersData=':
                 newList = lines.split("delimeter")
-        total = total + len(newList)
+                total = total + len(newList)
+                newlist = ''
+        print(total)
         time.sleep(randint(0,10))
     return total
 
 # Clean the csv File and return zip codes as strings
 # Columns Avaliable: Zip, City, State ID, Population, County Names
-def cleanAndReturnZip(zipCodes):
+def cleanAndReturnZip():
     zip = pd.read_csv('templates/uszips.csv')
     zip.drop('timezone',axis=1,inplace=True)
     zip.drop('military',axis=1,inplace=True)
@@ -59,7 +61,8 @@ def cleanAndReturnZip(zipCodes):
     zip.drop('county_fips',axis=1,inplace=True)
     zip.drop('county_weights',axis=1,inplace=True)
     zip.head()
-    zipCodes = list(map(str, zipCodes))
+    zipCodes = list()
+    zipCodes = list(map(str, zip['zip']))
     return zipCodes
 
 # Run
