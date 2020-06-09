@@ -12,6 +12,9 @@ from random import randint
 import numpy as np
 import pandas as pd
 
+# - For parsing result 
+import re
+
 # Create App
 app = Flask(__name__)
 
@@ -31,6 +34,7 @@ def CheckZipCodes():
     zipCodes = list()
     zipCodes = cleanAndReturnZip()
     newList = ''
+    word = "listingId:"
     for item in zipCodes:
         url = "https://mls.foreclosure.com/listing/search?lc=foreclosure&loc=" + item
         requestUrl = requests.get(url)
@@ -38,10 +42,11 @@ def CheckZipCodes():
         requestTextSplit = requestText.split('\n')
         for lines in requestTextSplit:
             if lines[0:15].lower() == 'var markersdata':
-                newList = lines.split("delimeter")
-                total = total + len(newList)
+                count = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), lines))   
+                total = total + count
                 newlist = ''
             newlist = ''
+        newlist = ''
         print(total)
         time.sleep(randint(0,150)/100)
     return total
