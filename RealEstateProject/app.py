@@ -15,6 +15,9 @@ import pandas as pd
 # - For parsing result 
 import re
 
+# - For Sending Email
+import smtplib, ssl
+
 # Create App
 app = Flask(__name__)
 
@@ -29,26 +32,55 @@ def hello():
     value = str(CheckZipCodes())
     return value
 
+# For every 1000 zipCode Searches Create a new File
+def GenerateFile(timeToCreate):
+    pass
+
+# Email File every 1000 zipCodes
+def EmailFile():
+    port = 465  # For SSL
+    password = input()
+
+    # Create a secure SSL context
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+        server.login("my@gmail.com", password)
+        # TODO: Send email here
+
 def CheckZipCodes():
+
+    timeToCreate = 0
     total = 0
     zipCodes = list()
     zipCodes = cleanAndReturnZip()
-    newList = ''
     word = "listingId:"
+    counter = 0
+    countOfForclosures = 0
+
     for item in zipCodes:
         url = "https://mls.foreclosure.com/listing/search?lc=foreclosure&loc=" + item
         requestUrl = requests.get(url)
         requestText = requestUrl.text
         requestTextSplit = requestText.split('\n')
+
         for lines in requestTextSplit:
             if lines[0:15].lower() == 'var markersdata':
-                count = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), lines))   
-                total = total + count
-                newlist = ''
-            newlist = ''
-        newlist = ''
-        print(total)
+                countOfForclosures = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), lines))   
+                total = total + countOfForclosures
+
+                if timeToCreate/10000 == 0 or timeToCreate == 0:
+                    f= open("Totals" + str(timeToCreate) + ".txt","w+")
+                    timeToCreate = timeToCreate + 1
+                print("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosures))
+                f.write("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosurest))
+
+        countOfForclosures = 0
+        counter = counter + 1
         time.sleep(randint(0,150)/100)
+
+    f.write("Total Overall Forclosures: {}".format(total))
+    f.close() 
     return total
 
 # Clean the csv File and return zip codes as strings
