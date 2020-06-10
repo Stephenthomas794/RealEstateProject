@@ -49,12 +49,11 @@ def EmailFile():
         # TODO: Send email here
 
 def CheckZipCodes():
-
-    timeToCreate = 0
-    total = 0
+    f= open("Totals0.txt","w+")
     zipCodes = list()
     zipCodes = cleanAndReturnZip()
     word = "listingId:"
+    total = 0
     counter = 0
     countOfForclosures = 0
 
@@ -68,12 +67,8 @@ def CheckZipCodes():
             if lines[0:15].lower() == 'var markersdata':
                 countOfForclosures = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), lines))   
                 total = total + countOfForclosures
-
-                if timeToCreate/10000 == 0 or timeToCreate == 0:
-                    f= open("Totals" + str(timeToCreate) + ".txt","w+")
-                    timeToCreate = timeToCreate + 1
                 print("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosures))
-                f.write("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosurest))
+                f.write("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosures))
 
         countOfForclosures = 0
         counter = counter + 1
