@@ -57,23 +57,29 @@ def CheckZipCodes():
     counter = 0
     countOfForclosures = 0
 
+    # Make HHTP request for every zip code to the URL
     for item in zipCodes:
         url = "https://mls.foreclosure.com/listing/search?lc=foreclosure&loc=" + item
         requestUrl = requests.get(url)
         requestText = requestUrl.text
         requestTextSplit = requestText.split('\n')
 
+        # Check every line to see if it equals "var marketdata"
         for lines in requestTextSplit:
             if lines[0:15].lower() == 'var markersdata':
+
+                #F Count the number of times "listingID:" shows up to see the number of postings for that zip code
                 countOfForclosures = sum(1 for _ in re.finditer(r'\b%s\b' % re.escape(word), lines))   
                 total = total + countOfForclosures
                 print("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosures))
-                f.write("Zip Code: {} Total Forclosures: {}".format(zipCodes[counter],countOfForclosures))
+                f.write("Zip Code: {} Total Forclosures: {} \n".format(zipCodes[counter],countOfForclosures))
 
+        # Reset values and start the sleep timer
         countOfForclosures = 0
         counter = counter + 1
         time.sleep(randint(0,150)/100)
-
+    
+    print("Total Overall Forclosures: {}".format(total))
     f.write("Total Overall Forclosures: {}".format(total))
     f.close() 
     return total
@@ -96,6 +102,8 @@ def cleanAndReturnZip():
     zip.drop('county_weights',axis=1,inplace=True)
     zip.head()
     zipCodes = list()
+
+    # Convert the list of zip codes to string
     zipCodes = list(map(str, zip['zip']))
     return zipCodes
 
